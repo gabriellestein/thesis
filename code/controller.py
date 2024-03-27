@@ -34,7 +34,7 @@ def generating(dataset, fine_tuned_model, gen_dataset, llama=False):
     new_summs_dataset = tg.generate_new_summaries()
     du.save_dataset_locally(new_summs_dataset, gen_dataset.replace("gsstein/", ""))
     du.push_new_ds_to_hub(new_summs_dataset, gen_dataset)
-    new_summs_dataset.save_to_disk(gen_dataset.replace("gsstein/", "dataset-local-disk/"))
+    new_summs_dataset.save_to_disk(gen_dataset.replace("gsstein/", "dataset_local_disk/"))
 
 # 100 Percent Human Data
 def cycle_100_percent():

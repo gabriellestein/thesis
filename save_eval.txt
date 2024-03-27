@@ -38,3 +38,11 @@ Time: 3.241 hours
   eval_samples_per_second =       5.23
   eval_steps_per_second   =      0.654
 Time: 20.869 hours
+***** 75.train_llama test metrics *****
+  epoch                   =       5.22
+  eval_loss               =      1.699
+  eval_runtime            = 0:01:49.24
+  eval_samples            =        576
+  eval_samples_per_second =      5.272
+  eval_steps_per_second   =      0.659
+Time: 20.855 hours

@@ -266,10 +266,11 @@ def deformat_response_du(text):
         return "Summary not found."
     
 def fix_different_prompt_thing():
-    dataset = load_dataset("gsstein/75-percent-human-dataset-opt")
+    dataset = load_dataset("gsstein/50-percent-human-dataset-opt")
     for split in dataset:
         df = dataset[split].to_pandas()
         df_mini = df.loc[df['summary'].str.contains('summarize the following text', case=False)]
+        # df_mini = df.loc[df['summary'] == ""]
 
         for idx, row in df_mini.iterrows():
             print(df.at[idx, "summary"])
@@ -277,4 +278,4 @@ def fix_different_prompt_thing():
             print(df.at[idx, "summary"])
         dataset[split] = Dataset.from_pandas(df)
         
-    #push_new_ds_to_hub(dataset, "gsstein/75-percent-human-dataset-opt")
+    dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
