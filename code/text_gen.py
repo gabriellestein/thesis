@@ -97,14 +97,17 @@ class TextGenerator:
 
     def generate_new_summaries(self):
         for split in self.dataset:
-            df = self.dataset[split].to_pandas()
-            if "raw_summary" not in df.columns:
-                df["raw_summary"] = None
-            for idx, row in tqdm(df.iterrows(), total=len(df)):
-                summary = self.summarize_text(row["prompt"])
-                df.at[idx, "raw_summary"] = summary
-                df.at[idx, "summary"] = summary.replace(row["prompt"], "").split("\n")[0]
-            self.dataset[split] = Dataset.from_pandas(df)
+            if split is not "train":
+                df = self.dataset[split].to_pandas()
+                if "raw_summary" not in df.columns:
+                    df["raw_summary"] = None
+                for idx, row in tqdm(df.iterrows(), total=len(df)):
+                    summary = self.summarize_text(row["prompt"])
+                    df.at[idx, "raw_summary"] = summary
+                    df.at[idx, "summary"] = summary.replace(row["prompt"], "").split("\n")[0]
+                self.dataset[split] = Dataset.from_pandas(df)
+            else:
+                self.dataset[split] = Dataset.from_parquet("./train.parquet")
         return self.dataset
     
     # def process_row(self, row):
