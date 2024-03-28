@@ -87,7 +87,7 @@ class ModelTrainer:
                 max_steps=10000,
                 save_steps=1000,
                 learning_rate=1e-4,
-                logging_steps=100,
+                logging_steps=500,
                 logging_dir=f"./models/{self.save_model_id}/logging",
                 load_best_model_at_end=True,
                 evaluation_strategy="steps",
