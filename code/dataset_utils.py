@@ -278,4 +278,25 @@ def fix_different_prompt_thing():
             print(df.at[idx, "summary"])
         dataset[split] = Dataset.from_pandas(df)
         
-    dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
+    #dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
+    
+def fix_llama_response():
+    dataset = load_dataset("gsstein/100-baseline-dataset-llama")
+    for split in dataset:
+        df = dataset[split].to_pandas()
+        df_mini = df.loc[df['summary'].str.len() == 1]
+        
+        for idx, row in df_mini.iterrows():
+            print(df.at[idx, "summary"])
+            df.at[idx, "summary"] = df.at[idx, "raw_summary"].replace(df.at[idx, "prompt"], "")
+            df.at[idx, "summary"] = re.sub(r'[^\x20-\x7E\s]', '', df.at[idx, "summary"]).strip().split("\n")[0]
+            print(df.at[idx, "summary"])
+        dataset[split] = Dataset.from_pandas(df)
+    
+    #dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
+    
+# gen_dataset = load_dataset_from_hub("gsstein/100-baseline-dataset-llama")
+# human_dataset = load_dataset_from_hub("gsstein/100-percent-human-dataset")
+# human_percent_swap(gen_dataset, human_dataset, 1, "gsstein/0-baseline-dataset-llama")
+
+# summary_swap_test("gsstein/75-baseline-dataset-llama", .25)

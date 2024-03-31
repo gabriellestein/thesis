@@ -5,6 +5,7 @@
 # source .venv/bin/activate
 
 # python3 -m pip install -r requirements.txt
+# pip install flash-attn --no-build-isolation
 
 # pip freeze > requirement.txt
 
