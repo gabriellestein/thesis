@@ -12,6 +12,12 @@ Perplexity of model-100-percent-human-llama: 5.46
 
 Perplexity of model-75-percent-human-llama: 5.47
 
+Perplexity of model-50-percent-human-llama: 5.47
+
+Perplexity of model-25-percent-human-llama: 5.47
+
+Perplexity of model-0-percent-human-llama: 5.46
+
 Perplexity of model-100-llama-baseline: 5.55
 
 Perplexity of model-75-baseline-llama: 5.53

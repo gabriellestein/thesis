@@ -46,6 +46,30 @@ Time: 20.869 hours
   eval_samples_per_second =      5.272
   eval_steps_per_second   =      0.659
 Time: 20.855 hours
+***** 50.train_llama test metrics *****
+  epoch                   =       5.22
+  eval_loss               =     1.6997
+  eval_runtime            = 0:01:49.84
+  eval_samples            =        576
+  eval_samples_per_second =      5.244
+  eval_steps_per_second   =      0.655
+Time: 20.863 hours
+***** 25.train_llama test metrics *****
+  epoch                   =       5.22
+  eval_loss               =     1.6989
+  eval_runtime            = 0:01:49.78
+  eval_samples            =        576
+  eval_samples_per_second =      5.247
+  eval_steps_per_second   =      0.656
+Time: 20.868 hours
+***** 0.train_llama test metrics *****
+  epoch                   =       5.22
+  eval_loss               =     1.6983
+  eval_runtime            = 0:01:49.28
+  eval_samples            =        576
+  eval_samples_per_second =      5.271
+  eval_steps_per_second   =      0.659
+Time: 18.134 hours
 ***** base.100_train test metrics *****
   epoch                   =       5.22
   eval_loss               =      1.714
