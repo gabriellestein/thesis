@@ -74,14 +74,7 @@ def self_bleu(files):
             f.write(str(sum(scores)/len(scores))+"\n")
             
             last = sum(scores)/len(scores)
-            
-def rouge_bleu_f1(predictions, references):
-    rouge = evaluate.load('rouge')
-    bleu = evaluate.load('bleu')
-    rouge_results = rouge.compute(predictions=predictions, references=references)
-    bleu_results = bleu.compute(predictions=predictions, references=references)
-    return rouge_results, bleu_results
-            
+                      
 def data_preprocessing(data):
     processed_data = []
 
@@ -111,3 +104,17 @@ def data_preprocessing(data):
         processed_data.append(processed_doc)
 
     return processed_data
+
+
+def calculate_metrics(df):
+    results = {}
+    df = df.sample(n=5000)
+    for idx, col in enumerate(df.columns[:-1]):
+        ref = df[col].to_list()
+        pred = df[df.columns[idx+1]].to_list()
+        metrics = evaluate.combine(["rouge", "bleu", "f1"])
+        results[df.columns[idx+1]] = metrics.compute(predictions=pred, references=ref)
+    with open("./results/total_results.txt") as f:
+        f.write(results)
+        print("Calculating huggingface metrics complete")
+        
