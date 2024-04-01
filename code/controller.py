@@ -35,6 +35,11 @@ def generating(dataset, fine_tuned_model, gen_dataset, llama=False):
     du.save_dataset_locally(new_summs_dataset, gen_dataset.replace("gsstein/", ""))
     du.push_new_ds_to_hub(new_summs_dataset, gen_dataset)
     new_summs_dataset.save_to_disk(gen_dataset.replace("gsstein/", "dataset_local_disk/"))
+    
+def analyze_metrics():
+    dataset = du.load_dataset_from_hub("gsstein/results")
+    lex.calculate_metrics(dataset["train"].to_pandas())
+    
 
 # 100 Percent Human Data
 def cycle_100_percent():
@@ -85,6 +90,23 @@ def cycle_0_percent():
         lambda: training("gsstein/0-percent-human-dataset-opt", "meta-llama/Llama-2-7b-hf", "model-0-percent-human-llama", llama=True),
         lambda: generating("gsstein/0-percent-human-dataset-opt", "gsstein/model-0-percent-human-llama", "gsstein/0-percent-human-dataset-llama", llama=True)
     ]
+    
+# 0 Percent Human Data
+def cycle_baseline():
+    print("Now Running: Baseline Llama")
+    return [
+        lambda: training("gsstein/75-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-75-baseline-llama", llama=True),
+        lambda: generating("gsstein/75-baseline-dataset", "gsstein/model-75-baseline-llama", "gsstein/75-baseline-dataset-llama", llama=True),
+        
+        lambda: training("gsstein/50-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-50-baseline-llama", llama=True),
+        lambda: generating("gsstein/50-baseline-dataset", "gsstein/model-50-baseline-llama", "gsstein/50-baseline-dataset-llama", llama=True),
+        
+        lambda: training("gsstein/25-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-25-baseline-llama", llama=True),
+        lambda: generating("gsstein/25-baseline-dataset", "gsstein/model-25-baseline-llama", "gsstein/25-baseline-dataset-llama", llama=True),
+        
+        lambda: training("gsstein/0-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-0-baseline-llama", llama=True),
+        lambda: generating("gsstein/0-baseline-dataset", "gsstein/model-0-baseline-llama", "gsstein/0-baseline-dataset-llama", llama=True),
+    ]
 
 # Analyze Data
 def analyze_data(group):
@@ -97,7 +119,8 @@ def analyze_data(group):
         lambda: sem.semantic_diversity(file_names),
         lambda: [lex.self_bleu(file_names),
             lex.distinct_n_full(file_names,2),
-            lex.distinct_n_full(file_names,3)]
+            lex.distinct_n_full(file_names,3),
+            analyze_metrics()]
             
     ]
 
@@ -107,6 +130,7 @@ cycles = {
     '50': cycle_50_percent,
     '25': cycle_25_percent,
     '0': cycle_0_percent,
+    'base': cycle_baseline,
     'analyze_base': lambda: analyze_data("base"),
     "analyze_opt": lambda: analyze_data("opt"),
     "analyze_llama": lambda: analyze_data("llama")
@@ -119,7 +143,15 @@ steps = {
     'gen_llama': 3,
     'syn': 0,
     'sem': 1,
-    'lex': 2
+    'lex': 2,
+    '75_train': 0,
+    '75_gen': 1,
+    '50_train': 2,
+    '50_gen': 3,
+    '25_train': 4,
+    '25_gen': 5,
+    '0_train': 6,
+    '0_gen': 7,
 }
 
 args = sorted(sys.argv[1:])

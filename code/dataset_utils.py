@@ -164,11 +164,11 @@ def convert_newline_char(example):
     # du.process_for_analysis("gsstein/0-percent-human-dataset-opt", "data-opt")
     
 def combine_results_into_one_dataset():
-    # base_100 = load_dataset_from_hub("gsstein/100-percent-human-dataset")
-    # base_75 = load_dataset_from_hub("gsstein/75-percent-human-dataset")
-    # base_50 = load_dataset_from_hub("gsstein/50-percent-human-dataset")
-    # base_25 = load_dataset_from_hub("gsstein/25-percent-human-dataset")
-    # base_0 = load_dataset_from_hub("gsstein/0-percent-human-dataset")
+    base_100 = load_dataset_from_hub("gsstein/100-percent-human-dataset")
+    base_75 = load_dataset_from_hub("gsstein/75-percent-human-dataset")
+    base_50 = load_dataset_from_hub("gsstein/50-percent-human-dataset")
+    base_25 = load_dataset_from_hub("gsstein/25-percent-human-dataset")
+    base_0 = load_dataset_from_hub("gsstein/0-percent-human-dataset")
     
     # opt_100 = load_dataset_from_hub("gsstein/100-percent-human-dataset-opt")
     # opt_75 = load_dataset_from_hub("gsstein/75-percent-human-dataset-opt")
@@ -178,23 +178,23 @@ def combine_results_into_one_dataset():
     
     # llama_100 = load_dataset_from_hub("gsstein/100-percent-human-dataset-llama")
     # llama_75 = load_dataset_from_hub("gsstein/75-percent-human-dataset-llama")
-    llama_50 = load_dataset_from_hub("gsstein/50-percent-human-dataset-llama")
-    llama_25 = load_dataset_from_hub("gsstein/25-percent-human-dataset-llama")
-    llama_0 = load_dataset_from_hub("gsstein/0-percent-human-dataset-llama")
+    # llama_50 = load_dataset_from_hub("gsstein/50-percent-human-dataset-llama")
+    # llama_25 = load_dataset_from_hub("gsstein/25-percent-human-dataset-llama")
+    # llama_0 = load_dataset_from_hub("gsstein/0-percent-human-dataset-llama")
     
     results = load_dataset_from_hub("gsstein/results")
     
     for split in results:
-        # df_base_100 = base_100[split].to_pandas()
-        # df_base_100 = df_base_100[['id', 'summary']].rename(columns={"summary": "base_100"})
-        # df_base_75 = base_75[split].to_pandas()
-        # df_base_75 = df_base_75[['id', 'summary']].rename(columns={"summary": "base_75"})
-        # df_base_50 = base_50[split].to_pandas()
-        # df_base_50 = df_base_50[['id', 'summary']].rename(columns={"summary": "base_50"})
-        # df_base_25 = base_25[split].to_pandas()
-        # df_base_25 = df_base_25[['id', 'summary']].rename(columns={"summary": "base_25"})
-        # df_base_0 = base_0[split].to_pandas()
-        # df_base_0 = df_base_0[['id', 'summary']].rename(columns={"summary": "base_0"})
+        df_base_100 = base_100[split].to_pandas()
+        df_base_100 = df_base_100[['id', 'summary']].rename(columns={"summary": "base_100"})
+        df_base_75 = base_75[split].to_pandas()
+        df_base_75 = df_base_75[['id', 'summary']].rename(columns={"summary": "base_75"})
+        df_base_50 = base_50[split].to_pandas()
+        df_base_50 = df_base_50[['id', 'summary']].rename(columns={"summary": "base_50"})
+        df_base_25 = base_25[split].to_pandas()
+        df_base_25 = df_base_25[['id', 'summary']].rename(columns={"summary": "base_25"})
+        df_base_0 = base_0[split].to_pandas()
+        df_base_0 = df_base_0[['id', 'summary']].rename(columns={"summary": "base_0"})
         
         # df_opt_100 = opt_100[split].to_pandas()
         # df_opt_100 = df_opt_100[['id', 'summary']].rename(columns={"summary": "opt_100"})
@@ -208,19 +208,25 @@ def combine_results_into_one_dataset():
         # df_opt_0 = opt_0[split].to_pandas()
         # df_opt_0 = df_opt_0[['id', 'summary']].rename(columns={"summary": "opt_0"})
         # df_opt_0['generated_opt_0'] = True
-        df_results_llama = results[split].to_pandas()
-        
         
         # df_llama_100 = llama_100[split].to_pandas()
         # df_llama_100 = df_llama_100[['id', 'summary']].rename(columns={"summary": "llama_100"})
         # df_llama_75 = llama_75[split].to_pandas()
         # df_llama_75 = df_llama_75[['id', 'summary']].rename(columns={"summary": "llama_75"})
-        df_llama_50 = llama_50[split].to_pandas()
-        df_llama_50 = df_llama_50[['id', 'summary']].rename(columns={"summary": "llama_50"})
-        df_llama_25 = llama_25[split].to_pandas()
-        df_llama_25 = df_llama_25[['id', 'summary']].rename(columns={"summary": "llama_25"})
-        df_llama_0 = llama_0[split].to_pandas()
-        df_llama_0 = df_llama_0[['id', 'summary']].rename(columns={"summary": "llama_0"})
+        # df_llama_50 = llama_50[split].to_pandas()
+        # df_llama_50 = df_llama_50[['id', 'summary']].rename(columns={"summary": "llama_50"})
+        # df_llama_25 = llama_25[split].to_pandas()
+        # df_llama_25 = df_llama_25[['id', 'summary']].rename(columns={"summary": "llama_25"})
+        # df_llama_0 = llama_0[split].to_pandas()
+        # df_llama_0 = df_llama_0[['id', 'summary']].rename(columns={"summary": "llama_0"})
+        
+        df_results = results[split].to_pandas()
+        
+        df_results = df_results.merge(df_base_100, on="id") \
+        .merge(df_base_75, on="id") \
+        .merge(df_base_50, on="id") \
+        .merge(df_base_25, on="id") \
+        .merge(df_base_0, on="id")
         
         # df_results = df_results_opt.merge(df_opt_100, on="id") \
         # .merge(df_opt_75, on="id")
@@ -228,9 +234,9 @@ def combine_results_into_one_dataset():
         # .merge(df_opt_25, on="id") \
         # .merge(df_opt_0, on="id")
         
-        df_results = df_results_llama.merge(df_llama_50, on="id") \
-        .merge(df_llama_25, on="id") \
-        .merge(df_llama_0, on="id")
+        # df_results = df_results_llama.merge(df_llama_50, on="id") \
+        # .merge(df_llama_25, on="id") \
+        # .merge(df_llama_0, on="id") \
         # .merge(df_llama_100, on="id") \
         # .merge(df_llama_75, on="id") \
         
@@ -278,4 +284,26 @@ def fix_different_prompt_thing():
             print(df.at[idx, "summary"])
         dataset[split] = Dataset.from_pandas(df)
         
-    dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
+    #dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
+    
+def fix_llama_response():
+    dataset = load_dataset("gsstein/100-baseline-dataset-llama")
+    for split in dataset:
+        df = dataset[split].to_pandas()
+        df_mini = df.loc[df['summary'].str.len() == 1]
+        
+        for idx, row in df_mini.iterrows():
+            print(df.at[idx, "summary"])
+            df.at[idx, "summary"] = df.at[idx, "raw_summary"].replace(df.at[idx, "prompt"], "")
+            df.at[idx, "summary"] = re.sub(r'[^\x20-\x7E\s]', '', df.at[idx, "summary"]).strip().split("\n")[0]
+            print(df.at[idx, "summary"])
+        dataset[split] = Dataset.from_pandas(df)
+    
+    #dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
+    
+# gen_dataset = load_dataset_from_hub("gsstein/100-baseline-dataset-llama")
+# human_dataset = load_dataset_from_hub("gsstein/100-percent-human-dataset")
+# human_percent_swap(gen_dataset, human_dataset, 1, "gsstein/0-baseline-dataset-llama")
+
+# summary_swap_test("gsstein/75-baseline-dataset-llama", .25)
+combine_results_into_one_dataset()
