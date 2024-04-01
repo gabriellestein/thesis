@@ -119,7 +119,8 @@ def analyze_data(group):
         lambda: sem.semantic_diversity(file_names),
         lambda: [lex.self_bleu(file_names),
             lex.distinct_n_full(file_names,2),
-            lex.distinct_n_full(file_names,3)]
+            lex.distinct_n_full(file_names,3),
+            analyze_metrics()]
             
     ]
 
