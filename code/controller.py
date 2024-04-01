@@ -35,6 +35,11 @@ def generating(dataset, fine_tuned_model, gen_dataset, llama=False):
     du.save_dataset_locally(new_summs_dataset, gen_dataset.replace("gsstein/", ""))
     du.push_new_ds_to_hub(new_summs_dataset, gen_dataset)
     new_summs_dataset.save_to_disk(gen_dataset.replace("gsstein/", "dataset_local_disk/"))
+    
+def analyze_metrics():
+    dataset = du.load_dataset_from_hub("gsstein/results")
+    lex.calculate_metrics(dataset["train"].to_pandas())
+    
 
 # 100 Percent Human Data
 def cycle_100_percent():
