@@ -1,6 +1,6 @@
 #!/bin/bash
 
-steps=("base.50_train")
+steps=("base.50_gen")
 
 for step in "${steps[@]}"; do
     python3 code/controller.py "$step" > logs/$step.log 2>&1

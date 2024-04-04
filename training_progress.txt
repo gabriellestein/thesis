@@ -71,3 +71,7 @@
 50.gen_llama is done
 base.75_train is done
 base.75_train is done
+base.50_train is done
+base.50_gen is done
+base.50_gen is done
+base.50_gen is done
