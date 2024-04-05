@@ -79,6 +79,6 @@ def semantic_diversity(files):
             f.write(str((c-old_c)/old_c)+"\n")
             
             old_c = c
-            semantice_results[name] = {"pairwise": p, "p-change": (p-old_p)/old_p, "cntroid": c, "c-change": (c-old_c)/old_c}
+            semantice_results[name] = {"pairwise": p, "p-change": p-old_p/old_p, "cntroid": c, "c-change": c-old_c/old_c}
 
     return semantice_results

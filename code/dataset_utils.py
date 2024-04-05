@@ -330,8 +330,9 @@ datas = [
     # ["gsstein/100-baseline-dataset-llama", "base-llama"],
     ["gsstein/75-baseline-dataset-llama", "base-llama"],
     # ["gsstein/50-baseline-dataset-llama", "base-llama"],
-    ["gsstein/25-baseline-dataset-llama", "base-llama"],
-    ["gsstein/0-baseline-dataset-llama", "base-llama"]
+    
+    # ["gsstein/25-baseline-dataset-llama", "base-llama"],
+    # ["gsstein/0-baseline-dataset-llama", "base-llama"]
     ]
 
 # for data in datas:

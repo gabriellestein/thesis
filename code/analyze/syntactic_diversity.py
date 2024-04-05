@@ -97,5 +97,5 @@ def syntactic_diversity(files):
             f.write(str(c)+"\n")
             f.write(str((c-last_c)/last_c)+"\n")
             last_c = c
-            syntactic_results[name] = {"pairwise": p, "p-change": (p-last_p)/last_p, "centroid": c, "c-change": (c-last_c)/last_c}
+            syntactic_results[name] = {"pairwise": p, "p-change": p-last_p/last_p, "centroid": c, "c-change": c-last_c/last_c}
     return syntactic_results
