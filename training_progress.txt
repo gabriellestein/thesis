@@ -75,3 +75,8 @@ base.50_train is done
 base.50_gen is done
 base.50_gen is done
 base.50_gen is done
+analyze.data is done
+analyze.data is done
+analyze is done
+analyze.data is done
+analyze.data is done

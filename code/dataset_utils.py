@@ -141,11 +141,11 @@ def process_for_analysis(dataset_name, folder_name):
 
     train = train.to_pandas()
     summary_list = train["summary"].to_list()
-    dataset_name = dataset_name.replace("gsstein", f"./{folder_name}")
+    dataset_name = dataset_name.replace("gsstein", f"./data/{folder_name}")
     with open(f"{dataset_name}.txt", 'w') as file:
         for summary in summary_list:
             file.write(summary + '\n')
-    print(f"data/{dataset_name}/.txt has finished writing")
+    print(f"{dataset_name}.txt has finished writing")
     
 def convert_newline_char(example):
     example["summary"] = example["summary"].replace('\n', '<newline>').replace("‘", "'")
@@ -290,7 +290,7 @@ def fix_llama_response():
     dataset = load_dataset("gsstein/100-baseline-dataset-llama")
     for split in dataset:
         df = dataset[split].to_pandas()
-        df_mini = df.loc[df['summary'].str.len() == 1]
+        df_mini = df.loc[df['summary'] == ""]
         
         for idx, row in df_mini.iterrows():
             print(df.at[idx, "summary"])
@@ -299,11 +299,40 @@ def fix_llama_response():
             print(df.at[idx, "summary"])
         dataset[split] = Dataset.from_pandas(df)
     
-    #dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
-    
+    # dataset.push_to_hub("gsstein/50-baseline-dataset-llama")
+
 # gen_dataset = load_dataset_from_hub("gsstein/100-baseline-dataset-llama")
 # human_dataset = load_dataset_from_hub("gsstein/100-percent-human-dataset")
 # human_percent_swap(gen_dataset, human_dataset, 1, "gsstein/0-baseline-dataset-llama")
 
 # summary_swap_test("gsstein/75-baseline-dataset-llama", .25)
 # combine_results_into_one_dataset()
+datas = [
+    # ["gsstein/100-percent-human-dataset", "base"],
+    # ["gsstein/75-percent-human-dataset", "base"],
+    # ["gsstein/50-percent-human-dataset", "base"],
+    # ["gsstein/25-percent-human-dataset", "base"],
+    # ["gsstein/0-percent-human-dataset", "base"],
+    # ["gsstein/75-baseline-dataset", "base"],
+    # ["gsstein/50-baseline-dataset", "base"],
+    # ["gsstein/25-baseline-dataset", "base"],
+    # ["gsstein/0-baseline-dataset", "base"],
+    # ["gsstein/100-percent-human-dataset-opt", "opt"],
+    # ["gsstein/75-percent-human-dataset-opt", "opt"],
+    # ["gsstein/50-percent-human-dataset-opt", "opt"],
+    # ["gsstein/25-percent-human-dataset-opt", "opt"],
+    # ["gsstein/0-percent-human-dataset-opt", "opt"],
+    # ["gsstein/100-percent-human-dataset-llama", "llama"],
+    ["gsstein/75-percent-human-dataset-llama", "llama"],
+    # ["gsstein/50-percent-human-dataset-llama", "llama"],
+    # ["gsstein/25-percent-human-dataset-llama", "llama"],
+    # ["gsstein/0-percent-human-dataset-llama", "llama"],
+    # ["gsstein/100-baseline-dataset-llama", "base-llama"],
+    ["gsstein/75-baseline-dataset-llama", "base-llama"],
+    # ["gsstein/50-baseline-dataset-llama", "base-llama"],
+    ["gsstein/25-baseline-dataset-llama", "base-llama"],
+    ["gsstein/0-baseline-dataset-llama", "base-llama"]
+    ]
+
+# for data in datas:
+#     process_for_analysis(data[0], data[1])

@@ -1,0 +1,27 @@
+********************************Syntactic Results for 0-percent-human-dataset-llama********************************
+pairwise
+9.367202054658405
+-0.0035257160464367402
+centroid
+6.68876838684082
+-0.00461101432096747
+********************************Semantic results for 0-percent-human-dataset-llama********************************
+pairwise
+1.3626571286374234
+-7.947643531670224e-05
+centroid
+0.964397132396698
+-8.349169563538045e-05
+********************************Lexical Results for 0-percent-human-dataset-llama********************************
+SelfBLEU>>>>>>>>>>>>>>>>>> 0-percent-human-dataset-llama
+0.40009348369670567
+0.005441901994090494
+TTR>>>>>>>>>>>>>>>>>> 0-percent-human-dataset-llama
+0.06410160715618604
+-0.9358983928438139
+Distinct-2>>>>>>>>>>>>>>>>>> 0-percent-human-dataset-llama
+0.33661479038386777
+-0.6633852096161322
+Distinct-3>>>>>>>>>>>>>>>>>> 0-percent-human-dataset-llama
+0.6034828514897476
+-0.39651714851025244

@@ -8,6 +8,7 @@ import torch
 import os
 import time
 import sys
+import json
 
 start = time.time()
 
@@ -38,7 +39,10 @@ def generating(dataset, fine_tuned_model, gen_dataset, llama=False):
     
 def analyze_metrics():
     dataset = du.load_dataset_from_hub("gsstein/results")
-    lex.calculate_metrics(dataset["train"].to_pandas())
+    metrics = lex.calculate_metrics(dataset["train"].to_pandas())
+    with open("./results/results_metrics.json", 'w') as f:
+        json.dump(metrics, f)
+    print("Complete metrics")
     
 
 # 100 Percent Human Data
@@ -109,20 +113,32 @@ def cycle_baseline():
     ]
 
 # Analyze Data
-def analyze_data(group):
-    print(f"Now Running: Analyze {group} Data")
-    files = [ f"percent-human-dataset-{group}.txt"] * 5
-    percents = [0,25,50,75,100]
-    file_names = [f"./data/{group}/{percent}-{file}" for percent, file in zip(percents, files)]
-    return [
-        lambda: syn.syntactic_diversity(file_names),
-        lambda: sem.semantic_diversity(file_names),
-        lambda: [lex.self_bleu(file_names),
-            lex.distinct_n_full(file_names,2),
-            lex.distinct_n_full(file_names,3),
-            analyze_metrics()]
-            
-    ]
+def analyze_data():
+    print(f"Now Running: Analyze Data")
+    results_total = {}
+    for group in ["base", "base-llama", "opt", "llama"]:
+        dir = "./data/"+group+"/"
+        files = os.listdir(dir)
+        files = [os.path.join(dir, file) for file in files]
+        print(files)
+        syn_results = syn.syntactic_diversity(files)
+        sem_results = sem.semantic_diversity(files)
+        self_bleu = lex.self_bleu(files)
+        ttr = lex.distinct_n_full(files,1)
+        distinct_2 = lex.distinct_n_full(files,2)
+        distinct_3 = lex.distinct_n_full(files,3)
+        results_total[group] = {
+            "syntactic": syn_results,
+            "semantic": sem_results,
+            "self_bleu": self_bleu,
+            "ttr": ttr,
+            "distinct_2": distinct_2,
+            "distinct_3": distinct_3
+        }
+    with open("./results/results_total.json", 'w') as f:
+        json.dumps(results_total, f)
+    # analyze_metrics()
+    print("Complete")
 
 cycles = {
     '100': cycle_100_percent,
@@ -131,9 +147,7 @@ cycles = {
     '25': cycle_25_percent,
     '0': cycle_0_percent,
     'base': cycle_baseline,
-    'analyze_base': lambda: analyze_data("base"),
-    "analyze_opt": lambda: analyze_data("opt"),
-    "analyze_llama": lambda: analyze_data("llama")
+    'analyze': analyze_data
 }
 
 steps = {
@@ -141,9 +155,7 @@ steps = {
     'gen_opt': 1,
     'train_llama': 2,
     'gen_llama': 3,
-    'syn': 0,
-    'sem': 1,
-    'lex': 2,
+    'data': 0,
     '75_train': 0,
     '75_gen': 1,
     '50_train': 2,
@@ -157,9 +169,11 @@ steps = {
 args = sorted(sys.argv[1:])
 for arg in args:
     cycle, step = arg.split('.')
-    step = steps[step]
-    if cycle in cycles and 0 <= step < len(cycles[cycle]()):
-        cycles[cycle]()[step]()
+    cycle_functions = cycles[cycle]()
+    if callable(step):
+            step()
+    elif 0 <= step < len(cycle_functions):
+            cycle_functions[step]()
     else:
         print(f"No such step {step} in cycle {cycle}")
 

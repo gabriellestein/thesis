@@ -33,6 +33,7 @@ def distinct_n(texts, n, l=200):
 
 def distinct_n_full(files, n):
     last = 1
+    distinct_n_results = {}
     for fname in files:
         print(fname)
         with open(fname) as f:
@@ -41,15 +42,23 @@ def distinct_n_full(files, n):
         
         results_file = fname.replace("./data", "./results")
         with open(results_file, "a") as f:
-            results = results_file.rsplit('/', 1)[-1]
-            f.write('Distinct-'+str(n)+'>>>>>>>>>>>>>>>>>>'+results+"\n")       
-            f.write(str(distinct_n(texts, n))+"\n")
+            name = results_file.rsplit('/', 1)[-1].replace(".txt", "")
+            metric = 'Distinct-'+str(n) if n != 1 else 'TTR'
+            f.write(metric+'>>>>>>>>>>>>>>>>>> '+name+"\n")       
+            score = distinct_n(texts, n)
             
-            f.write(str(distinct_n(texts, n)-last/last)+"\n")
+            change = distinct_n(texts, n)-last/last
+
+            f.write(str(score)+"\n")
+            
+            f.write(str(change)+"\n")
+            distinct_n_results[name] = {metric: score, "change": change}
             
             last = distinct_n(texts, n)
+    return distinct_n_results
             
 def self_bleu(files):
+    self_bleu_results = {}
     last = 1
     for fname in files:
         weights = {'bigram': (1/2., 1/2.), 'trigram': (1/3., 1/3., 1/3.)}
@@ -60,20 +69,24 @@ def self_bleu(files):
         
         results_file = fname.replace("./data", "./results")
         with open(results_file, "a") as f: 
-            results = results_file.rsplit('/', 1)[-1]
-            f.write("********************************Lexical Results for "+results+"********************************\n")      
-            f.write('SelfBLEU'+'>>>>>>>>>>>>>>>>>>'+results+"\n")
+            name = results_file.rsplit('/', 1)[-1].replace(".txt", "")
+            f.write("********************************Lexical Results for "+name+"********************************\n")      
+            f.write('SelfBLEU'+'>>>>>>>>>>>>>>>>>> '+name+"\n")
             texts = random.sample(texts, 5000)
             self_bleu = SelfBLEU(texts, weights)
             
             scores = self_bleu.get_score()['trigram']
             scores = [1-s for s in scores]
-            
-            f.write(str((sum(scores)/len(scores)-last)/last)+"\n")
-                    
-            f.write(str(sum(scores)/len(scores))+"\n")
+            score = sum(scores)/len(scores)
+            change = (sum(scores)/len(scores)-last)/last
+            self_bleu_results[name] = {"score": score, "change": change}
+
+            f.write(str(score)+"\n")
+
+            f.write(str(change)+"\n")
             
             last = sum(scores)/len(scores)
+    return self_bleu_results
                       
 def data_preprocessing(data):
     processed_data = []
@@ -114,7 +127,4 @@ def calculate_metrics(df):
         pred = df[df.columns[idx+1]].to_list()
         metrics = evaluate.combine(["rouge", "bleu", "f1"])
         results[df.columns[idx+1]] = metrics.compute(predictions=pred, references=ref)
-    with open("./results/total_results.txt") as f:
-        f.write(results)
-        print("Calculating huggingface metrics complete")
-        
+    return results

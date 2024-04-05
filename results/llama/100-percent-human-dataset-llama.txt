@@ -1,0 +1,27 @@
+********************************Syntactic Results for 100-percent-human-dataset-llama********************************
+pairwise
+9.230520150473803
+8.230520150473803
+centroid
+6.599937915802002
+5.599937915802002
+********************************Semantic results for 100-percent-human-dataset-llama********************************
+pairwise
+1.3630239202552341
+0.3630239202552341
+centroid
+0.9646803736686707
+-0.035319626331329346
+********************************Lexical Results for 100-percent-human-dataset-llama********************************
+SelfBLEU>>>>>>>>>>>>>>>>>> 100-percent-human-dataset-llama
+0.3859868399575385
+-0.6140131600424614
+TTR>>>>>>>>>>>>>>>>>> 100-percent-human-dataset-llama
+0.06059233489264358
+-0.9394076651073564
+Distinct-2>>>>>>>>>>>>>>>>>> 100-percent-human-dataset-llama
+0.3173967348027664
+-0.6826032651972336
+Distinct-3>>>>>>>>>>>>>>>>>> 100-percent-human-dataset-llama
+0.5802017486027983
+-0.4197982513972017

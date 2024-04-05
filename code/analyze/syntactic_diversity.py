@@ -44,7 +44,7 @@ def syntactic_diversity(files):
 
     last_c = 1
     last_p = 1
-
+    syntactic_results = {}
     for fname in files:
         print(fname)
         graphs = list()
@@ -82,8 +82,8 @@ def syntactic_diversity(files):
         
         results_file = fname.replace("./data", "./results")
         with open(results_file, "a") as f:
-            results = results_file.rsplit('/', 1)[-1] 
-            f.write("********************************Syntactic Results for"+results+"********************************\n")
+            name = results_file.rsplit('/', 1)[-1].replace(".txt", "") 
+            f.write("********************************Syntactic Results for "+name+"********************************\n")
             f.write("pairwise\n")
             p = torch.sum(dist).item()/(len(dist)*len(dist))
             f.write(str(p)+"\n")
@@ -97,3 +97,5 @@ def syntactic_diversity(files):
             f.write(str(c)+"\n")
             f.write(str((c-last_c)/last_c)+"\n")
             last_c = c
+            syntactic_results[name] = {"pairwise": p, "p-change": (p-last_p)/last_p, "centroid": c, "c-change": (c-last_c)/last_c}
+    return syntactic_results

@@ -19,7 +19,7 @@ def remove_punct(s):
 def semantic_diversity(files):
     old_c = 1
     old_p = 1
-
+    semantice_results = {}
     for fname in files:
         print(fname)
         graphs = list()
@@ -57,8 +57,8 @@ def semantic_diversity(files):
         
         results_file = fname.replace("./data", "./results")
         with open(results_file, "a") as f:   
-            results = results_file.rsplit('/', 1)[-1]  
-            f.write("********************************Semantic results for"+results+"********************************\n")
+            name = results_file.rsplit('/', 1)[-1].replace(".txt", "")  
+            f.write("********************************Semantic results for "+name+"********************************\n")
             
             f.write("pairwise\n")
             
@@ -66,7 +66,6 @@ def semantic_diversity(files):
             
             f.write(str(p)+"\n")
             f.write(str((p-old_p)/old_p)+"\n")
-            
             old_p = p
             
             dist = torch.cdist(v1, center, p=2)
@@ -80,3 +79,6 @@ def semantic_diversity(files):
             f.write(str((c-old_c)/old_c)+"\n")
             
             old_c = c
+            semantice_results[name] = {"pairwise": p, "p-change": (p-old_p)/old_p, "cntroid": c, "c-change": (c-old_c)/old_c}
+
+    return semantice_results
