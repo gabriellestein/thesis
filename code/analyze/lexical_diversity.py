@@ -35,7 +35,6 @@ def distinct_n_full(files, n):
     last = 1
     distinct_n_results = {}
     for fname in files:
-        print(fname)
         with open(fname) as f:
             lines = f.readlines()      
         texts = data_preprocessing(lines)
@@ -119,12 +118,12 @@ def data_preprocessing(data):
     return processed_data
 
 
-def calculate_metrics(df):
-    results = {}
-    df = df.sample(n=5000)
-    for idx, col in enumerate(df.columns[:-1]):
-        ref = df[col].to_list()
-        pred = df[df.columns[idx+1]].to_list()
-        metrics = evaluate.combine(["rouge", "bleu", "f1"])
-        results[df.columns[idx+1]] = metrics.compute(predictions=pred, references=ref)
-    return results
+def calculate_metrics(files):
+    with open(files[0]) as f:
+        refs = f.readlines()
+        
+    with open(files[0]) as f:
+        preds = f.readlines()
+    
+    metrics = evaluate.combine(["rouge", "bleu", "f1"])
+    return metrics.compute(predictions=preds, references=refs)

@@ -37,13 +37,6 @@ def generating(dataset, fine_tuned_model, gen_dataset, llama=False):
     du.push_new_ds_to_hub(new_summs_dataset, gen_dataset)
     new_summs_dataset.save_to_disk(gen_dataset.replace("gsstein/", "dataset_local_disk/"))
     
-def analyze_metrics():
-    dataset = du.load_dataset_from_hub("gsstein/results")
-    metrics = lex.calculate_metrics(dataset["train"].to_pandas())
-    with open("./results/results_metrics.json", 'w') as f:
-        json.dump(metrics, f)
-    print("Complete metrics")
-    
 
 # 100 Percent Human Data
 def cycle_100_percent():
@@ -116,10 +109,10 @@ def cycle_baseline():
 def analyze_data():
     print(f"Now Running: Analyze Data")
     results_total = {}
-    for group in ["base", "base-llama", "opt", "llama"]:
-        dir = "./data/"+group+"/"
-        files = os.listdir(dir)
-        files = [os.path.join(dir, file) for file in files]
+    for cycle in ["cycle-100", "cycle-75", "cycle-50", "cycle-25", "cycle-0", "base-llama"]:
+        dir = "./data/"+cycle+"/"
+        file_names = os.listdir(dir)
+        files = [os.path.join(dir, file) for file in file_names]
         print(files)
         syn_results = syn.syntactic_diversity(files)
         sem_results = sem.semantic_diversity(files)
@@ -127,17 +120,30 @@ def analyze_data():
         ttr = lex.distinct_n_full(files,1)
         distinct_2 = lex.distinct_n_full(files,2)
         distinct_3 = lex.distinct_n_full(files,3)
-        results_total[group] = {
+        metrics = {}
+        if cycle != "base-llama":
+            num = str(cycle.split("-")[1])
+            metrics[num+"opt"] = lex.calculate_metrics([num+"precent-human-dataset.txt", num+"percent-human-dataset-opt.txt"])
+            metrics[num+"llama"] = lex.calculate_metrics([num+"precent-human-dataset-opt.txt", num+"percent-human-dataset-llama.txt"])
+
+            "baseline-dataset"
+            "baseline-dataset-llama"
+        else:
+            for num in [100, 75, 50, 25, 0]:
+                num = str(num)
+                metrics[num+"base"] = lex.calculate_metrics([num+"baseline-dataset", num+"baseline-dataset-llama"])
+            
+        results_total[cycle] = {
             "syntactic": syn_results,
             "semantic": sem_results,
             "self_bleu": self_bleu,
             "ttr": ttr,
             "distinct_2": distinct_2,
-            "distinct_3": distinct_3
+            "distinct_3": distinct_3,
+            "metrics": metrics
         }
     with open("./results/results_total.json", 'w') as f:
         json.dumps(results_total, f)
-    # analyze_metrics()
     print("Complete")
 
 cycles = {
