@@ -271,8 +271,8 @@ def deformat_response_du(text):
     else:
         return "Summary not found."
     
-def fix_different_prompt_thing():
-    dataset = load_dataset("gsstein/50-percent-human-dataset-opt")
+def fix_opt_summary():
+    dataset = load_dataset("gsstein/75-percent-human-dataset-opt")
     for split in dataset:
         df = dataset[split].to_pandas()
         df_mini = df.loc[df['summary'].str.contains('summarize the following text', case=False)]
@@ -284,7 +284,7 @@ def fix_different_prompt_thing():
             print(df.at[idx, "summary"])
         dataset[split] = Dataset.from_pandas(df)
         
-    #dataset.push_to_hub("gsstein/50-percent-human-dataset-opt")
+    dataset.push_to_hub("gsstein/75-percent-human-dataset-opt")
     
 def fix_llama_response():
     dataset = load_dataset("gsstein/100-baseline-dataset-llama")
@@ -306,4 +306,4 @@ def fix_llama_response():
 # human_percent_swap(gen_dataset, human_dataset, 1, "gsstein/0-baseline-dataset-llama")
 
 # summary_swap_test("gsstein/75-baseline-dataset-llama", .25)
-combine_results_into_one_dataset()
+# combine_results_into_one_dataset()

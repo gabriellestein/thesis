@@ -56,7 +56,7 @@ def cycle_75_percent():
     print("Now Running: 75 Percent Human Data")
     return [
         lambda: training("gsstein/75-percent-human-dataset", "facebook/opt-350m", "model-75-percent-human-opt"),
-        lambda: generating("gsstein/75-percent-human-dataset", "gsstein/model-75-percent-human-opt", "gsstein/75-percent-human-dataset-opt"),
+        lambda: [generating("gsstein/75-percent-human-dataset", "gsstein/model-75-percent-human-opt", "gsstein/75-percent-human-dataset-opt"), du.fix_opt_summary()],
         lambda: training("gsstein/75-percent-human-dataset-opt", "meta-llama/Llama-2-7b-hf", "model-75-percent-human-llama", llama=True),
         lambda: generating("gsstein/75-percent-human-dataset-opt", "gsstein/model-75-percent-human-llama", "gsstein/75-percent-human-dataset-llama", llama=True)
     ]
@@ -104,7 +104,7 @@ def cycle_baseline():
         lambda: training("gsstein/25-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-25-baseline-llama", llama=True),
         lambda: generating("gsstein/25-baseline-dataset", "gsstein/model-25-baseline-llama", "gsstein/25-baseline-dataset-llama", llama=True),
         
-        lambda: training("gsstein/0-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-0-baseline-llama", llama=True),
+        lambda: training("gsstein/0-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-0-baseline-llama", llama=True, resume=True),
         lambda: generating("gsstein/0-baseline-dataset", "gsstein/model-0-baseline-llama", "gsstein/0-baseline-dataset-llama", llama=True),
     ]
 

@@ -70,3 +70,11 @@ Time: 20.868 hours
   eval_samples_per_second =      5.271
   eval_steps_per_second   =      0.659
 Time: 18.134 hours
+***** test metrics *****
+  epoch                   =       5.22
+  eval_loss               =     1.7013
+  eval_runtime            = 0:01:49.26
+  eval_samples            =        576
+  eval_samples_per_second =      5.272
+  eval_steps_per_second   =      0.659
+Time: 18.461 hours

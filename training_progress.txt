@@ -69,3 +69,11 @@
 100.gen_llama is done
 75.gen_llama is done
 50.gen_llama is done
+base.25_train is done
+base.0_train is done
+base.25_train is done
+base.0_train is done
+75.gen_opt is done
+75.train_llama is done
+75.gen_llama is done
+base.25_gen is done
