@@ -1,8 +1,6 @@
 from datasets import load_dataset, Dataset
 import pandas as pd
 from datasets.utils.logging import disable_progress_bar
-import torch
-import random
 import os
 import re
 # disable_progress_bar()
@@ -121,131 +119,6 @@ def summary_swap_test(dataset, percent):
         gen += num
     print("gen: ", gen)
     print("Percent of total dataset: ", dataset_len)
-    
-    # def prepare_new_experimental_group(human_ds, gen_ds, percent, new_dataset_name):
-    # human_dataset = du.load_dataset(human_ds)
-    # gen_dataset = du.load_dataset(gen_ds)
-    # du.human_percent_swap(gen_dataset, human_dataset, percent, new_dataset_name)
-    
-    # dataset="gsstein/gsstein/0-percent-human-dataset"
-    # model_name="./model-100-percent-human-opt/peft-model"
-    # dataset = du.load_dataset(dataset)
-    # _, tokenizer = tg.load_fine_tuned_model(model_name)
-    # processed = du.dataset_preprocessing_gen(dataset, tokenizer)
-    # du.push_new_ds_to_hub(dataset, "gsstein/100-percent-human-dataset-opt")
-    
-def process_for_analysis(dataset_name, folder_name):
-    dataset = load_dataset_from_hub(dataset_name)
-    train = dataset["train"]
-    train = train.map(convert_newline_char)
-
-    train = train.to_pandas()
-    summary_list = train["summary"].to_list()
-    dataset_name = dataset_name.replace("gsstein", f"./data/{folder_name}")
-    with open(f"{dataset_name}.txt", 'w') as file:
-        for summary in summary_list:
-            file.write(summary + '\n')
-    print(f"{dataset_name}.txt has finished writing")
-    
-def convert_newline_char(example):
-    example["summary"] = example["summary"].replace('\n', '<newline>').replace("‘", "'")
-    return example
-
-    # du.process_for_analysis("gsstein/100-percent-human-dataset", "data")
-    # du.process_for_analysis("gsstein/75-percent-human-dataset", "data")
-    # du.process_for_analysis("gsstein/50-percent-human-dataset", "data")
-    # du.process_for_analysis("gsstein/25-percent-human-dataset", "data")
-    # du.process_for_analysis("gsstein/0-percent-human-dataset", "data")
-
-    # du.process_for_analysis("gsstein/100-percent-human-dataset-opt", "data-opt")
-    # du.process_for_analysis("gsstein/75-percent-human-dataset-opt", "data-opt")
-    # du.process_for_analysis("gsstein/50-percent-human-dataset-opt", "data-opt")
-    # du.process_for_analysis("gsstein/25-percent-human-dataset-opt", "data-opt")
-    # du.process_for_analysis("gsstein/0-percent-human-dataset-opt", "data-opt")
-    
-def combine_results_into_one_dataset():
-    base_100 = load_dataset_from_hub("gsstein/100-percent-human-dataset")
-    base_75 = load_dataset_from_hub("gsstein/75-percent-human-dataset")
-    base_50 = load_dataset_from_hub("gsstein/50-percent-human-dataset")
-    base_25 = load_dataset_from_hub("gsstein/25-percent-human-dataset")
-    base_0 = load_dataset_from_hub("gsstein/0-percent-human-dataset")
-    
-    # opt_100 = load_dataset_from_hub("gsstein/100-percent-human-dataset-opt")
-    # opt_75 = load_dataset_from_hub("gsstein/75-percent-human-dataset-opt")
-    # opt_50 = load_dataset_from_hub("gsstein/50-percent-human-dataset-opt")
-    # opt_25 = load_dataset_from_hub("gsstein/25-percent-human-dataset-opt")
-    # opt_0 = load_dataset_from_hub("gsstein/0-percent-human-dataset-opt")
-    
-    # llama_100 = load_dataset_from_hub("gsstein/100-percent-human-dataset-llama")
-    # llama_75 = load_dataset_from_hub("gsstein/75-percent-human-dataset-llama")
-    # llama_50 = load_dataset_from_hub("gsstein/50-percent-human-dataset-llama")
-    # llama_25 = load_dataset_from_hub("gsstein/25-percent-human-dataset-llama")
-    # llama_0 = load_dataset_from_hub("gsstein/0-percent-human-dataset-llama")
-    
-    results = load_dataset_from_hub("gsstein/results")
-    
-    for split in results:
-        df_base_100 = base_100[split].to_pandas()
-        df_base_100 = df_base_100[['id', 'summary']].rename(columns={"summary": "base_100"})
-        # df_base_75 = base_75[split].to_pandas()
-        # df_base_75 = df_base_75[['id', 'summary']].rename(columns={"summary": "base_75"})
-        # df_base_50 = base_50[split].to_pandas()
-        # df_base_50 = df_base_50[['id', 'summary']].rename(columns={"summary": "base_50"})
-        # df_base_25 = base_25[split].to_pandas()
-        # df_base_25 = df_base_25[['id', 'summary']].rename(columns={"summary": "base_25"})
-        # df_base_0 = base_0[split].to_pandas()
-        # df_base_0 = df_base_0[['id', 'summary']].rename(columns={"summary": "base_0"})
-        
-        # df_opt_100 = opt_100[split].to_pandas()
-        # df_opt_100 = df_opt_100[['id', 'summary']].rename(columns={"summary": "opt_100"})
-        # df_opt_100['generated_opt_100'] = False
-        # df_opt_75 = opt_75[split].to_pandas()
-        # df_opt_75 = df_opt_75[['id', 'summary', 'generated']].rename(columns={"summary": "opt_75", 'generated':'generated_opt_75'})
-        # df_opt_50 = opt_50[split].to_pandas()
-        # df_opt_50 = df_opt_50[['id', 'summary', 'generated']].rename(columns={"summary": "opt_50", 'generated':'generated_opt_50'})
-        # df_opt_25 = opt_25[split].to_pandas()
-        # df_opt_25 = df_opt_25[['id', 'summary', 'generated']].rename(columns={"summary": "opt_25", 'generated':'generated_opt_25'})
-        # df_opt_0 = opt_0[split].to_pandas()
-        # df_opt_0 = df_opt_0[['id', 'summary']].rename(columns={"summary": "opt_0"})
-        # df_opt_0['generated_opt_0'] = True
-        
-        # df_llama_100 = llama_100[split].to_pandas()
-        # df_llama_100 = df_llama_100[['id', 'summary']].rename(columns={"summary": "llama_100"})
-        # df_llama_75 = llama_75[split].to_pandas()
-        # df_llama_75 = df_llama_75[['id', 'summary']].rename(columns={"summary": "llama_75"})
-        # df_llama_50 = llama_50[split].to_pandas()
-        # df_llama_50 = df_llama_50[['id', 'summary']].rename(columns={"summary": "llama_50"})
-        # df_llama_25 = llama_25[split].to_pandas()
-        # df_llama_25 = df_llama_25[['id', 'summary']].rename(columns={"summary": "llama_25"})
-        # df_llama_0 = llama_0[split].to_pandas()
-        # df_llama_0 = df_llama_0[['id', 'summary']].rename(columns={"summary": "llama_0"})
-        
-        df_results = results[split].to_pandas()
-        
-        df_results = df_results.merge(df_base_100, on="id") \
-        .merge(df_base_75, on="id") \
-        .merge(df_base_50, on="id") \
-        .merge(df_base_25, on="id") \
-        .merge(df_base_0, on="id")
-        
-        # df_results = df_results_opt.merge(df_opt_100, on="id") \
-        # .merge(df_opt_75, on="id")
-        # .merge(df_opt_50, on="id") \
-        # .merge(df_opt_25, on="id") \
-        # .merge(df_opt_0, on="id")
-        
-        # df_results = df_results_llama.merge(df_llama_50, on="id") \
-        # .merge(df_llama_25, on="id") \
-        # .merge(df_llama_0, on="id") \
-        # .merge(df_llama_100, on="id") \
-        # .merge(df_llama_75, on="id") \
-        
-        results[split] = Dataset.from_pandas(df_results)
-        
-    push_new_ds_to_hub(results, "gsstein/results-llama-1")
-    
-# process_for_analysis("gsstein/75-percent-human-dataset-llama", "data/llama")
-# combine_results_into_one_dataset()
 
 def fix_prompt_changing():
     dataset1 = load_dataset("gsstein/100-percent-human-dataset-opt")
@@ -300,32 +173,50 @@ def fix_llama_response():
         dataset[split] = Dataset.from_pandas(df)
     
     dataset.push_to_hub("gsstein/50-baseline-dataset-llama")
+    
+def process_for_analysis(dataset_name, cycle, step):
+    dataset = load_dataset_from_hub(dataset_name)
+    train = dataset["train"]
+    train = train.map(convert_newline_char)
+
+    train = train.to_pandas()
+    summary_list = train["summary"].to_list()
+    dataset_name = f"./data/cycle-{cycle}/{cycle}-dataset-{step}"
+    with open(f"{dataset_name}.txt", 'w') as file:
+        for summary in summary_list:
+            file.write(summary + '\n')
+    print(f"{dataset_name}.txt has finished writing")
+    
+def convert_newline_char(example):
+    example["summary"] = example["summary"].replace('\n', '<newline>').replace("‘", "'")
+    return example
 
 datas = [
-    ["gsstein/100-percent-human-dataset", "cycle-100"],
-    ["gsstein/75-percent-human-dataset", "cycle-75"],
-    ["gsstein/50-percent-human-dataset", "cycle-50"],
-    ["gsstein/25-percent-human-dataset", "cycle-25"],
-    ["gsstein/0-percent-human-dataset", "cycle-0"],
-    # ["gsstein/75-baseline-dataset", "base-llama"],
-    # ["gsstein/50-baseline-dataset", "base-llama"],
-    # ["gsstein/25-baseline-dataset", "base-llama"],
-    # ["gsstein/0-baseline-dataset", "base-llama"],
-    # ["gsstein/100-percent-human-dataset-opt", "cycle-100"],
-    # ["gsstein/75-percent-human-dataset-opt", "cycle-75"],
-    # ["gsstein/50-percent-human-dataset-opt", "cycle-50"],
-    # ["gsstein/25-percent-human-dataset-opt", "cycle-25"],
-    # ["gsstein/0-percent-human-dataset-opt", "cycle-0"],
-    # ["gsstein/100-percent-human-dataset-llama", "cycle-100"],
-    # ["gsstein/75-percent-human-dataset-llama", "cycle-75"],
-    # ["gsstein/50-percent-human-dataset-llama", "cycle-50"],
-    # ["gsstein/25-percent-human-dataset-llama", "cycle-25"],
-    # ["gsstein/0-percent-human-dataset-llama", "cycle-0"],
-    # ["gsstein/100-baseline-dataset-llama", "base-llama"],
-    # ["gsstein/75-baseline-dataset-llama", "base-llama"],
-    # ["gsstein/50-baseline-dataset-llama", "base-llama"],
-    # ["gsstein/25-baseline-dataset-llama", "base-llama"],
-    # ["gsstein/0-baseline-dataset-llama", "base-llama"]
+    ["gsstein/100-percent-human-dataset", 100, 0],
+    ["gsstein/75-percent-human-dataset", 75, 0],
+    ["gsstein/50-percent-human-dataset", 50, 0],
+    ["gsstein/25-percent-human-dataset", 25, 0],
+    ["gsstein/0-percent-human-dataset", 0, 0],
+    # ["gsstein/100-percent-human-dataset-opt", 100, 1],
+    # ["gsstein/75-percent-human-dataset-opt", 75, 1],
+    # ["gsstein/50-percent-human-dataset-opt", 50, 1],
+    # ["gsstein/25-percent-human-dataset-opt", 25, 1],
+    # ["gsstein/0-percent-human-dataset-opt", 0, 1],
+    # ["gsstein/100-percent-human-dataset-llama", 100, 2],
+    # ["gsstein/75-percent-human-dataset-llama", 75, 2],
+    # ["gsstein/50-percent-human-dataset-llama", 50, 2],
+    # ["gsstein/25-percent-human-dataset-llama", 25, 2],
+    # ["gsstein/0-percent-human-dataset-llama", 0, 2],
+    # ["gsstein/100-percent-human-dataset", "base-llama-100", 0],
+    # ["gsstein/75-baseline-dataset", "base-75", 0],
+    # ["gsstein/50-baseline-dataset", "base-50", 0],
+    # ["gsstein/25-baseline-dataset", "base-25", 0],
+    # ["gsstein/0-baseline-dataset", "base-0", 0],
+    # ["gsstein/100-baseline-dataset-llama", "base-100", 1],
+    # ["gsstein/75-baseline-dataset-llama", "base-75", 1],
+    # ["gsstein/50-baseline-dataset-llama", "base-50", 1],
+    # ["gsstein/25-baseline-dataset-llama", "base-25", 1],
+    # ["gsstein/0-baseline-dataset-llama", "base-0", 1]
     ]
 
 for data in datas:

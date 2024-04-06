@@ -109,10 +109,10 @@ def cycle_baseline():
 def analyze_data():
     print(f"Now Running: Analyze Data")
     results_total = {}
-    for cycle in ["cycle-100", "cycle-75", "cycle-50", "cycle-25", "cycle-0", "base-llama"]:
+    for cycle in ["cycle-100", "cycle-75", "cycle-50", "cycle-25", "cycle-0", "cycle-base-100", "cycle-base-75", "cycle-base-50", "cycle-base-25", "cycle-base-0"]:
         dir = "./data/"+cycle+"/"
         file_names = os.listdir(dir)
-        files = [os.path.join(dir, file) for file in file_names]
+        files = [os.path.join(dir, file) for file in file_names].sort()
         print(files)
         syn_results = syn.syntactic_diversity(files)
         sem_results = sem.semantic_diversity(files)
@@ -120,19 +120,8 @@ def analyze_data():
         ttr = lex.distinct_n_full(files,1)
         distinct_2 = lex.distinct_n_full(files,2)
         distinct_3 = lex.distinct_n_full(files,3)
-        metrics = {}
-        if cycle != "base-llama":
-            num = str(cycle.split("-")[1])
-            metrics[num+"opt"] = lex.calculate_metrics([num+"precent-human-dataset.txt", num+"percent-human-dataset-opt.txt"])
-            metrics[num+"llama"] = lex.calculate_metrics([num+"precent-human-dataset-opt.txt", num+"percent-human-dataset-llama.txt"])
-
-            "baseline-dataset"
-            "baseline-dataset-llama"
-        else:
-            for num in [100, 75, 50, 25, 0]:
-                num = str(num)
-                metrics[num+"base"] = lex.calculate_metrics([num+"baseline-dataset", num+"baseline-dataset-llama"])
-            
+        metrics = lex.analyze_metrics(files)
+        
         results_total[cycle] = {
             "syntactic": syn_results,
             "semantic": sem_results,
@@ -161,7 +150,6 @@ steps = {
     'gen_opt': 1,
     'train_llama': 2,
     'gen_llama': 3,
-    'data': 0,
     '75_train': 0,
     '75_gen': 1,
     '50_train': 2,
@@ -170,16 +158,17 @@ steps = {
     '25_gen': 5,
     '0_train': 6,
     '0_gen': 7,
+    'data': -1
 }
 
 args = sorted(sys.argv[1:])
 for arg in args:
     cycle, step = arg.split('.')
-    cycle_functions = cycles[cycle]()
-    if callable(step):
-            step()
-    elif 0 <= step < len(cycle_functions):
-            cycle_functions[step]()
+    step = steps[step]
+    if cycle in cycles and 0 <= step < len(cycles[cycle]()):
+        cycles[cycle]()[step]()
+    elif cycle == "analyze":
+        cycles[cycle]()
     else:
         print(f"No such step {step} in cycle {cycle}")
 
