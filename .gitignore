@@ -165,4 +165,5 @@ cython_debug/
 dataset_local/
 dataset_local_disk/
 models/
+data/
 **/*.parquet

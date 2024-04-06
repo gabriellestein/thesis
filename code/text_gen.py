@@ -106,14 +106,3 @@ class TextGenerator:
                 df.at[idx, "summary"] = summary.replace(row["prompt"], "").split("\n")[0]
             self.dataset[split] = Dataset.from_pandas(df)
         return self.dataset
-    
-    # def process_row(self, row):
-        # df = self.dataset[split].to_pandas()
-        #     if "raw_summary" not in df.columns:
-        #         df["raw_summary"] = None
-        #     df = df.progress_apply(self.process_row, axis=1)
-        #     self.dataset[split] = Dataset.from_pandas(df)
-        # summary = self.summarize_text(row["prompt"])
-        # row["raw_summary"] = summary
-        # row["summary"] = summary.replace(row["prompt"], "").split("\n")[0]
-        # return row
