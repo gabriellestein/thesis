@@ -109,10 +109,10 @@ def cycle_baseline():
 def analyze_data():
     print(f"Now Running: Analyze Data")
     results_total = {}
-    for cycle in ["cycle-100", "cycle-75", "cycle-50", "cycle-25", "cycle-0", "cycle-base-100", "cycle-base-75", "cycle-base-50", "cycle-base-25", "cycle-base-0"]:
+    for cycle in ["cycle-100", "cycle-75", "cycle-50", "cycle-25", "cycle-0", "cycle-base-100", "cycle-base-75", "cycle-base-50", "cycle-base-25"]:
         dir = "./data/"+cycle+"/"
         file_names = os.listdir(dir)
-        files = [os.path.join(dir, file) for file in file_names].sort()
+        files = [os.path.join(dir, file) for file in file_names]
         print(files)
         syn_results = syn.syntactic_diversity(files)
         sem_results = sem.semantic_diversity(files)
@@ -120,7 +120,7 @@ def analyze_data():
         ttr = lex.distinct_n_full(files,1)
         distinct_2 = lex.distinct_n_full(files,2)
         distinct_3 = lex.distinct_n_full(files,3)
-        metrics = lex.analyze_metrics(files)
+        metrics = lex.analyze_metrics(files, cycle)
         
         results_total[cycle] = {
             "syntactic": syn_results,

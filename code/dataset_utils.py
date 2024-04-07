@@ -160,7 +160,7 @@ def fix_opt_summary():
     dataset.push_to_hub("gsstein/75-percent-human-dataset-opt")
     
 def fix_llama_response():
-    dataset = load_dataset("gsstein/100-baseline-dataset-llama")
+    dataset = load_dataset("gsstein/25-baseline-dataset-llama")
     for split in dataset:
         df = dataset[split].to_pandas()
         df_mini = df.loc[df['summary'] == ""]
@@ -172,7 +172,7 @@ def fix_llama_response():
             print(df.at[idx, "summary"])
         dataset[split] = Dataset.from_pandas(df)
     
-    dataset.push_to_hub("gsstein/50-baseline-dataset-llama")
+    dataset.push_to_hub("gsstein/25-baseline-dataset-llama")
     
 def process_for_analysis(dataset_name, cycle, step):
     dataset = load_dataset_from_hub(dataset_name)
@@ -192,11 +192,11 @@ def convert_newline_char(example):
     return example
 
 datas = [
-    ["gsstein/100-percent-human-dataset", 100, 0],
-    ["gsstein/75-percent-human-dataset", 75, 0],
-    ["gsstein/50-percent-human-dataset", 50, 0],
-    ["gsstein/25-percent-human-dataset", 25, 0],
-    ["gsstein/0-percent-human-dataset", 0, 0],
+    # ["gsstein/100-percent-human-dataset", 100, 0],
+    # ["gsstein/75-percent-human-dataset", 75, 0],
+    # ["gsstein/50-percent-human-dataset", 50, 0],
+    # ["gsstein/25-percent-human-dataset", 25, 0],
+    # ["gsstein/0-percent-human-dataset", 0, 0],
     # ["gsstein/100-percent-human-dataset-opt", 100, 1],
     # ["gsstein/75-percent-human-dataset-opt", 75, 1],
     # ["gsstein/50-percent-human-dataset-opt", 50, 1],
@@ -207,17 +207,20 @@ datas = [
     # ["gsstein/50-percent-human-dataset-llama", 50, 2],
     # ["gsstein/25-percent-human-dataset-llama", 25, 2],
     # ["gsstein/0-percent-human-dataset-llama", 0, 2],
-    # ["gsstein/100-percent-human-dataset", "base-llama-100", 0],
+    # ["gsstein/100-percent-human-dataset", "base-100", 0],
     # ["gsstein/75-baseline-dataset", "base-75", 0],
     # ["gsstein/50-baseline-dataset", "base-50", 0],
     # ["gsstein/25-baseline-dataset", "base-25", 0],
+    
     # ["gsstein/0-baseline-dataset", "base-0", 0],
+    
     # ["gsstein/100-baseline-dataset-llama", "base-100", 1],
     # ["gsstein/75-baseline-dataset-llama", "base-75", 1],
     # ["gsstein/50-baseline-dataset-llama", "base-50", 1],
     # ["gsstein/25-baseline-dataset-llama", "base-25", 1],
+    
     # ["gsstein/0-baseline-dataset-llama", "base-0", 1]
     ]
 
-for data in datas:
-    process_for_analysis(data[0], data[1])
+# for data in datas:
+#     process_for_analysis(data[0], data[1], data[2])

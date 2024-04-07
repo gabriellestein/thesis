@@ -135,5 +135,5 @@ def analyze_metrics(files, cycle):
         metrics[cycle+"opt"] = compute_metrics([files[0], files[1]])
         metrics[cycle+"llama"] = compute_metrics([files[1], files[2]])
     else:
-        metrics[cycle] = compute_metrics(files[0], [1])
+        metrics[cycle] = compute_metrics([files[0], files[1]])
     return metrics
