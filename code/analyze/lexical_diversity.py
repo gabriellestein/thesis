@@ -131,7 +131,7 @@ def compute_metrics(data):
 
 def analyze_metrics(files, cycle):
     metrics = {}
-    if not cycle.contains("base"):
+    if "base" not in cycle:
         metrics[cycle+"opt"] = compute_metrics([files[0], files[1]])
         metrics[cycle+"llama"] = compute_metrics([files[1], files[2]])
     else:
