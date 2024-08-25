@@ -1,17 +1,14 @@
 import os
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, DataCollatorForLanguageModeling
+from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, DataCollatorForLanguageModeling, BitsAndBytesConfig
 from trl import SFTTrainer
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from accelerate import Accelerator
 import math
 
 class ModelTrainer:
-    # Check for GPU
-    os.environ["CUDA_VISIBLE_DEVICES"]="0"
-    device="cuda" if torch.cuda.is_available() else "cpu"
-    
-    def __init__(self, model_id, dataset, save_model_id, llama=False, resume=False):
+    def __init__(self, model_id, dataset, save_model_id, resume=False, save_local="", accelerate=False):
         """
         Initializes a new instance of TextGenerator.
         
@@ -31,6 +28,10 @@ class ModelTrainer:
             Boolean stating whether the model id llama (or OPT). Used tp determine if the model it too big for the machine and needs to be quantizied.
         :param resume: bool
             Is the training resuming resuming from a checkpoint
+        :param save_local: str
+            File location showing where to save locally is save_locally is set to true. If set to false save location will be "".
+        :param acceleration: bool
+            Boolean stating whether to use accelerator gor multi-GPU setup.
         """
         self.model_id = model_id
         self.model = None
@@ -38,17 +39,27 @@ class ModelTrainer:
         self.save_model_id = save_model_id
         self.trainer = None
         self.dataset = dataset
-        self.llama = llama
         self.resume = resume
+        self.save_local = save_local
+        self.accelerate = accelerate
+        accelerator = Accelerator()
+        if torch.cuda.device_count():
+            self.device = accelerator.device
+        else:
+            self.device="cuda" if torch.cuda.is_available() else "cpu"
         
     def load_model(self):
         tokenizer = AutoTokenizer.from_pretrained(self.model_id)
-        if self.llama:
-            model = AutoModelForCausalLM.from_pretrained(self.model_id, load_in_8bit=True)
-            tokenizer.pad_token = tokenizer.eos_token
-            tokenizer.padding_side = "right"
-        else:
-            model = AutoModelForCausalLM.from_pretrained(self.model_id).to(self.device)
+        model = AutoModelForCausalLM.from_pretrained(self.model_id,
+            # bnb_config= BitsAndBytesConfig(
+            #     load_in_4bit=True,
+            #     bnb_4bit_use_double_quant=True,
+            #     bnb_4bit_quant_type="nf4",
+            #     bnb_4bit_compute_dtype=torch.bfloat16
+            # )
+            )
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.padding_side = "right"
             
         for param in model.parameters():
             param.requires_grad = False
@@ -61,15 +72,15 @@ class ModelTrainer:
         model.lm_head = CastOutputToFloat(model.lm_head)
 
         config = LoraConfig(
-            r=16,
-            lora_alpha=32,
+            r=32,
+            lora_alpha=64,
             target_modules=["q_proj", "v_proj"],
             lora_dropout=0.05,
             bias="none",
             task_type="CAUSAL_LM"
         )
-        if self.llama:
-            model = prepare_model_for_kbit_training(model)
+        
+        model = prepare_model_for_kbit_training(model)
             
         self.model = get_peft_model(model, config)
         self.tokenizer = tokenizer
@@ -91,7 +102,8 @@ class ModelTrainer:
                 logging_dir=f"./models/{self.save_model_id}/logging",
                 load_best_model_at_end=True,
                 evaluation_strategy="steps",
-                optim="paged_adamw_32bit"
+                optim="sgd",
+                optim_target_modules=["attn", "mlp"]
             ),
             packing=False,
             formatting_func=formatting_prompts_func,
@@ -103,7 +115,7 @@ class ModelTrainer:
         self.save_metrics_from_model(train_result)
         
     def save_model(self):
-        model_path = f"./models/{self.save_model_id}/peft-model"
+        model_path = f"./models/{self.save_model_id}"
         self.model.save_pretrained(model_path)
         self.tokenizer.save_pretrained(model_path)
         

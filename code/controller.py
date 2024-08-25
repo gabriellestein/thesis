@@ -1,25 +1,36 @@
-import dataset_utils as du
-from model_train import ModelTrainer
-from text_gen import TextGenerator
-import analyze.semantic_diversity as sem
-import analyze.lexical_diversity as lex
-import analyze.syntactic_diversity as syn
+import utils as du
+from model.model_train import ModelTrainer
+from model.text_gen import TextGenerator
+from analyze.analyze import Analyzer
 import torch
 import os
 import time
 import sys
+import argparse
 import json
+from decouple import config
 
 start = time.time()
 
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+# os.environ["CUDA_VISIBLE_DEVICES"]="0"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+MODEL_1 = config('MODEL_1')
+MODEL_2 = config('MODEL_2')
+DATASET = config('DATASET')
+SAVE_LOCAL = config('SAVE_LOCAL')
+HF_UN = config('HF_UN')
+METRICS = config('METRICS')
+if METRICS:
+    METRICS = METRICS.split(',')
+    
+accelerate = True if torch.cuda.device_count() > 1 else False
+
 ### TRAINING
-def training(dataset, model, save_model, llama=False, resume=False):
+def training(dataset, model, save_model, llama=False, resume=False, accelerate=False):
     print("Training ", save_model)
     dataset = du.load_dataset(dataset)
-    mt = ModelTrainer(model, dataset, save_model, llama, resume)
+    mt = ModelTrainer(model, dataset, save_model, llama, resume, accelerate)
     mt.load_model()
     mt.train_model(du.formatting_func_train)
     mt.save_model()
@@ -33,144 +44,40 @@ def generating(dataset, fine_tuned_model, gen_dataset, llama=False):
     tg = TextGenerator(dataset, fine_tuned_model, gen_dataset, llama)
     tg.load_fine_tuned_model()
     new_summs_dataset = tg.generate_new_summaries()
-    du.save_dataset_locally(new_summs_dataset, gen_dataset.replace("gsstein/", ""))
+    du.save_dataset_locally(new_summs_dataset, gen_dataset.replace(f"{HF_UN}/", ""))
     du.push_new_ds_to_hub(new_summs_dataset, gen_dataset)
-    new_summs_dataset.save_to_disk(gen_dataset.replace("gsstein/", "dataset_local_disk/"))
+    new_summs_dataset.save_to_disk(gen_dataset.replace(f"{HF_UN}/", "dataset_local_disk/"))
+    
+### ANALYZING
+def analyzing():
+    an = Analyzer(datasets=[], all_metrics=True)
+    an.analyze()
+    if SAVE_LOCAL:
+        an.write_results_locally(SAVE_LOCAL)
+    return
     
 
 # 100 Percent Human Data
-def cycle_100_percent():
-    print("Now Running: 100 Percent Human Data")
+def cycle(num):
+    print("Now Running: Cycle "+num)
     return [
-        lambda: training("gsstein/100-percent-human-dataset", "facebook/opt-350m", "model-100-percent-human-opt"),
-        lambda: generating("gsstein/100-percent-human-dataset", "gsstein/model-100-percent-human-opt", "gsstein/100-percent-human-dataset-opt"),
-        lambda: training("gsstein/100-percent-human-dataset-opt", "meta-llama/Llama-2-7b-hf", "model-100-percent-human-llama", llama=True),
-        lambda: generating("gsstein/100-percent-human-dataset-opt", "gsstein/model-100-percent-human-llama", "gsstein/100-percent-human-dataset-llama", llama=True)
-    ]
-    
-# 75 Percent Human Data
-def cycle_75_percent():
-    print("Now Running: 75 Percent Human Data")
-    return [
-        lambda: training("gsstein/75-percent-human-dataset", "facebook/opt-350m", "model-75-percent-human-opt"),
-        lambda: generating("gsstein/75-percent-human-dataset", "gsstein/model-75-percent-human-opt", "gsstein/75-percent-human-dataset-opt"),
-        lambda: training("gsstein/75-percent-human-dataset-opt", "meta-llama/Llama-2-7b-hf", "model-75-percent-human-llama", llama=True),
-        lambda: generating("gsstein/75-percent-human-dataset-opt", "gsstein/model-75-percent-human-llama", "gsstein/75-percent-human-dataset-llama", llama=True)
+        lambda: training(f"{HF_UN}/{num}-percent-human-dataset", MODEL_1, f"model-{num}-percent-human-opt"),
+        lambda: generating(f"{HF_UN}/{num}-percent-human-dataset", f"{HF_UN}/model-{num}-percent-human-opt", f"{HF_UN}/{num}-percent-human-dataset-opt")
     ]
 
-# 50 Percent Human Data
-def cycle_50_percent():
-    print("Now Running: 50 Percent Human Data")
-    return [
-        lambda: training("gsstein/50-percent-human-dataset", "facebook/opt-350m", "model-50-percent-human-opt"),
-        lambda: generating("gsstein/50-percent-human-dataset", "gsstein/model-50-percent-human-opt", "gsstein/50-percent-human-dataset-opt"),
-        lambda: training("gsstein/50-percent-human-dataset-opt", "meta-llama/Llama-2-7b-hf", "model-50-percent-human-llama", llama=True),
-        lambda: generating("gsstein/50-percent-human-dataset-opt", "gsstein/model-50-percent-human-llama", "gsstein/50-percent-human-dataset-llama", llama=True)
-    ]
 
-# 25 Percent Human Data
-def cycle_25_percent():
-    print("Now Running: 25 Percent Human Data")
-    return [
-        lambda: training("gsstein/25-percent-human-dataset", "facebook/opt-350m", "model-25-percent-human-opt"),
-        lambda: generating("gsstein/25-percent-human-dataset", "gsstein/model-25-percent-human-opt", "gsstein/25-percent-human-dataset-opt"),
-        lambda: training("gsstein/25-percent-human-dataset-opt", "meta-llama/Llama-2-7b-hf", "model-25-percent-human-llama", llama=True),
-        lambda: generating("gsstein/25-percent-human-dataset-opt", "gsstein/model-25-percent-human-llama", "gsstein/25-percent-human-dataset-llama", llama=True)
-    ]
+def main(args):
+    save_local = args.save_local
+    for arg in args.cycle:
+        return
 
-# 0 Percent Human Data
-def cycle_0_percent():
-    print("Now Running: 0 Percent Human Data")
-    return [
-        lambda: training("gsstein/0-percent-human-dataset", "facebook/opt-350m", "model-0-percent-human-opt"),
-        lambda: generating("gsstein/0-percent-human-dataset", "gsstein/model-0-percent-human-opt", "gsstein/0-percent-human-dataset-opt"),
-        lambda: training("gsstein/0-percent-human-dataset-opt", "meta-llama/Llama-2-7b-hf", "model-0-percent-human-llama", llama=True),
-        lambda: generating("gsstein/0-percent-human-dataset-opt", "gsstein/model-0-percent-human-llama", "gsstein/0-percent-human-dataset-llama", llama=True)
-    ]
-    
-# 0 Percent Human Data
-def cycle_baseline():
-    print("Now Running: Baseline Llama")
-    return [
-        lambda: training("gsstein/75-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-75-baseline-llama", llama=True),
-        lambda: generating("gsstein/75-baseline-dataset", "gsstein/model-75-baseline-llama", "gsstein/75-baseline-dataset-llama", llama=True),
-        
-        lambda: training("gsstein/50-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-50-baseline-llama", llama=True),
-        lambda: generating("gsstein/50-baseline-dataset", "gsstein/model-50-baseline-llama", "gsstein/50-baseline-dataset-llama", llama=True),
-        
-        lambda: training("gsstein/25-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-25-baseline-llama", llama=True),
-        lambda: generating("gsstein/25-baseline-dataset", "gsstein/model-25-baseline-llama", "gsstein/25-baseline-dataset-llama", llama=True),
-        
-        lambda: training("gsstein/0-baseline-dataset", "meta-llama/Llama-2-7b-hf", "model-0-baseline-llama", llama=True),
-        lambda: generating("gsstein/0-baseline-dataset", "gsstein/model-0-baseline-llama", "gsstein/0-baseline-dataset-llama", llama=True),
-    ]
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("save_local", type=bool, help="Boolean indicating whether or not to save models and datasets locally.")
+    parser.add_argument("cycle", nargs='+', help="List of experimental cycles and steps in the format 'cycle step'.")
 
-# Analyze Data
-def analyze_data():
-    print(f"Now Running: Analyze Data")
-    results_total = {}
-    for cycle in ["cycle-100", "cycle-75", "cycle-50", "cycle-25", "cycle-0", "cycle-base-100", "cycle-base-75", "cycle-base-50", "cycle-base-25", "cycle-base-0"]:
-        dir = "./data/"+cycle+"/"
-        file_names = os.listdir(dir)
-        files = [os.path.join(dir, file) for file in file_names].sort()
-        print(files)
-        syn_results = syn.syntactic_diversity(files)
-        sem_results = sem.semantic_diversity(files)
-        self_bleu = lex.self_bleu(files)
-        ttr = lex.distinct_n_full(files,1)
-        distinct_2 = lex.distinct_n_full(files,2)
-        distinct_3 = lex.distinct_n_full(files,3)
-        metrics = lex.analyze_metrics(files)
-        
-        results_total[cycle] = {
-            "syntactic": syn_results,
-            "semantic": sem_results,
-            "self_bleu": self_bleu,
-            "ttr": ttr,
-            "distinct_2": distinct_2,
-            "distinct_3": distinct_3,
-            "metrics": metrics
-        }
-    with open("./results/results_total.json", 'w') as f:
-        json.dumps(results_total, f)
-    print("Complete")
-
-cycles = {
-    '100': cycle_100_percent,
-    '75': cycle_75_percent,
-    '50': cycle_50_percent,
-    '25': cycle_25_percent,
-    '0': cycle_0_percent,
-    'base': cycle_baseline,
-    'analyze': analyze_data
-}
-
-steps = {
-    'train_opt': 0,
-    'gen_opt': 1,
-    'train_llama': 2,
-    'gen_llama': 3,
-    '75_train': 0,
-    '75_gen': 1,
-    '50_train': 2,
-    '50_gen': 3,
-    '25_train': 4,
-    '25_gen': 5,
-    '0_train': 6,
-    '0_gen': 7,
-    'data': -1
-}
-
-args = sorted(sys.argv[1:])
-for arg in args:
-    cycle, step = arg.split('.')
-    step = steps[step]
-    if cycle in cycles and 0 <= step < len(cycles[cycle]()):
-        cycles[cycle]()[step]()
-    elif cycle == "analyze":
-        cycles[cycle]()
-    else:
-        print(f"No such step {step} in cycle {cycle}")
+    args = parser.parse_args()
+    main(args)
 
         
 end = time. time()

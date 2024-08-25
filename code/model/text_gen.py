@@ -58,51 +58,25 @@ class TextGenerator:
         
         self.model = peft_model
         self.tokenizer = tokenizer
-
-    def generate_new_summaries_map(self, dataset):
-        return dataset.map(
-            lambda example: self.swap_summary(example)
-        )
-
-    def swap_summary(self, example):
-            summary = self.summarize_text(example["prompt"])
-            example["summary"] = self.deformat_response(summary)
-            return example
     
-    def summarize_text(self, input_text):
-        if self.llama:
-            prompt_lookup_num_tokens=10
-            num_beams=1
-        else: 
-            prompt_lookup_num_tokens=None
-            num_beams=3
+    def generate_response(self, input_text):
+        num_beams=3
             
         input_ids = self.tokenizer(input_text, return_tensors="pt").input_ids.to(self.device)
         output = self.model.generate(input_ids=input_ids,
-                                max_new_tokens=50,
+                                max_new_tokens=200,
                                 do_sample=True,
                                 num_beams=num_beams,
                                 top_p=0.9,
-                                temperature=0.7,
-                                prompt_lookup_num_tokens=prompt_lookup_num_tokens)
+                                temperature=0.7
+                                )
         return self.tokenizer.decode(output[0], skip_special_tokens=True)
 
-    def deformat_response(self, text):
-        summary_match = re.search(r'### Summary:\n(.*)', text, re.DOTALL)
-        if summary_match:
-            summary_text = summary_match.group(1)
-            return summary_text.strip()
-        else:
-            return "Summary not found."
-
-    def generate_new_summaries(self):
+    def generate_all_responses(self):
         for split in self.dataset:
             df = self.dataset[split].to_pandas()
-            if "raw_summary" not in df.columns:
-                df["raw_summary"] = None
             for idx, row in tqdm(df.iterrows(), total=len(df)):
-                summary = self.summarize_text(row["prompt"])
-                df.at[idx, "raw_summary"] = summary
-                df.at[idx, "summary"] = summary.replace(row["prompt"], "").split("\n")[0]
+                summary = self.generate_response(row["prompt"])
+                df.at[idx, "raw_response"] = summary
             self.dataset[split] = Dataset.from_pandas(df)
         return self.dataset

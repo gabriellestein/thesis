@@ -10,4 +10,7 @@ stanza==1.8.0
 huggingface_hub[cli]==0.22.1
 evaluate==0.4.1
 transformers==4.38.2
-git+https://github.com/huggingface/peft.git
+decouple==0.0.7
+accelerate==0.33.0
+deepspeed==0.15.0
+peft==0.12.0
