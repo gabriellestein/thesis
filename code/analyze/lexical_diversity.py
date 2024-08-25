@@ -70,3 +70,24 @@ def data_preprocessing(data):
         
         processed_data.append(processed_doc)
     return processed_data
+
+
+def compute_metrics(data):
+    with open(data[0]) as f:
+        refs = f.readlines()
+        
+    with open(data[0]) as f:
+        preds = f.readlines()
+    
+    metrics = evaluate.combine(["rouge", "bleu"])
+    return metrics.compute(predictions=preds, references=refs)
+
+
+def analyze_metrics(files, cycle):
+    metrics = {}
+    if not cycle.contains("base"):
+        metrics[cycle+"opt"] = compute_metrics([files[0], files[1]])
+        metrics[cycle+"llama"] = compute_metrics([files[1], files[2]])
+    else:
+        metrics[cycle] = compute_metrics(files[0], [1])
+    return metrics
