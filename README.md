@@ -1,5 +1,5 @@
 # The Perils of Generative Model Inbreeding: Evaluating the Consequences of Cross-Model Training in Large Language Models
-Evaluating the Consequences of LLMs trained on the ouput of other LLMs.
+Evaluating the consequences of LLMs trained on the ouput of other LLMs.
 
 # Setup
 Install requirments.txt
